@@ -22,7 +22,7 @@ message LogRequest {
 
   Actions action = 1;
   Entities entity = 2;
-  int64 entity_id = 3;
+  string entity_id = 3;
   google.protobuf.Timestamp timestamp = 4;
 }
 

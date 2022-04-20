@@ -17,3 +17,5 @@ SERVER_PORT=9000
 ```
 
 Use `make run` to build&run project, `make lint` to check code with linter, `make migrate` to apply the migration scheme.
+### Generating .pb.go files
+```protoc --go_out=proto --go-grpc_out=proto proto/audit.proto```
