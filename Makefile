@@ -13,3 +13,6 @@ down:
 
 lint:
 	golangci-lint run
+
+swag:
+	swag init -g cmd/app/main.go

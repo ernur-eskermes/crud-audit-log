@@ -75,6 +75,9 @@ issues:
     - path: (internal/transport/rest)
       linters:
         - godot
+    - path: (internal/transport/rest/handlers|internal/transport/grpc/handlers)
+      linters:
+        - stylecheck
     - path: (cmd/app)
       linters:
         - funlen

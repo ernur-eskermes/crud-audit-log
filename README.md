@@ -13,7 +13,13 @@ MONGO_DATABASE=audit
 MONGO_USER=admin
 MONGO_PASSWORD=g0langn1nja
 
-SERVER_PORT=9000
+GRPC_PORT=9000
+
+HTTP_HOST=localhost
+HTTP_PORT=9001
+HTTP_READ_TIMEOUT=10s
+HTTP_WRITE_TIMEOUT=10s
+HTTP_MAX_HEADER_MEGABYTES=1
 ```
 
 Use `make run` to build&run project, `make lint` to check code with linter, `make migrate` to apply the migration scheme.

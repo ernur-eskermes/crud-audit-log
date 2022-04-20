@@ -4,19 +4,23 @@ import (
 	"fmt"
 	"net"
 
+	"google.golang.org/grpc/reflection"
+
+	grpcHandler "github.com/ernur-eskermes/crud-audit-log/internal/transport/grpc/handlers"
+
 	audit "github.com/ernur-eskermes/crud-audit-log/pkg/domain"
 	"google.golang.org/grpc"
 )
 
 type Server struct {
-	grpcSrv     *grpc.Server
-	auditServer audit.AuditServiceServer
+	grpcSrv      *grpc.Server
+	auditHandler audit.AuditServiceServer
 }
 
-func New(auditServer audit.AuditServiceServer) *Server {
+func New(handlers *grpcHandler.Handler) *Server {
 	return &Server{
-		grpcSrv:     grpc.NewServer(),
-		auditServer: auditServer,
+		grpcSrv:      grpc.NewServer(),
+		auditHandler: handlers.Audit,
 	}
 }
 
@@ -28,13 +32,10 @@ func (s *Server) ListenAndServe(port int) error {
 		return err
 	}
 
-	audit.RegisterAuditServiceServer(s.grpcSrv, s.auditServer)
+	audit.RegisterAuditServiceServer(s.grpcSrv, s.auditHandler)
+	reflection.Register(s.grpcSrv)
 
-	if err := s.grpcSrv.Serve(lis); err != nil {
-		return err
-	}
-
-	return nil
+	return s.grpcSrv.Serve(lis)
 }
 
 func (s *Server) Stop() {
