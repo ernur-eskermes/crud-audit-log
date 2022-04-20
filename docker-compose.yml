@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  audit-service:
+    container_name: audit_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./.bin/:/root/
+    env_file:
+      - .env
+    depends_on:
+      - audit-db
+    networks:
+      - audit_backend
+    restart: on-failure
+  audit-db:
+    container_name: audit_db
+    image: mongo:4.4-bionic
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=g0langn1nja
+    networks:
+      - audit_backend
+    restart: on-failure
+networks:
+  audit_backend:
+    name: audit_backend
+    external: true
+volumes:
+  mongo_data:
+
+
