@@ -6,25 +6,20 @@ import (
 	audit "github.com/ernur-eskermes/crud-audit-log/pkg/domain"
 )
 
-type Repository interface {
-	Insert(ctx context.Context, item audit.LogItem) error
-}
-
 type Audit struct {
-	repo Repository
+	repo AuditStorage
 }
 
-func NewAudit(repo Repository) *Audit {
+func NewAudit(repo AuditStorage) *Audit {
 	return &Audit{
 		repo: repo,
 	}
 }
 
-func (s *Audit) Create(ctx context.Context, req *audit.LogRequest) error {
-	return s.repo.Insert(ctx, audit.LogItem{
-		Action:    req.GetAction().String(),
-		Entity:    req.GetEntity().String(),
-		EntityID:  req.GetEntityId(),
-		Timestamp: req.GetTimestamp().AsTime(),
-	})
+func (s *Audit) Create(ctx context.Context, item *audit.LogItem) error {
+	return s.repo.Insert(ctx, item)
+}
+
+func (s *Audit) GetAll(ctx context.Context) ([]audit.LogItem, error) {
+	return s.repo.GetAll(ctx)
 }

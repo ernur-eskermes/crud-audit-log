@@ -1,6 +1,10 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"time"
+
+	"github.com/kelseyhightower/envconfig"
+)
 
 type Config struct {
 	Mongo struct {
@@ -9,7 +13,14 @@ type Config struct {
 		Password string
 		Database string
 	}
-	Server struct {
+	HTTP struct {
+		Host               string
+		Port               int
+		ReadTimeout        time.Duration
+		WriteTimeout       time.Duration
+		MaxHeaderMegabytes int
+	}
+	GRPC struct {
 		Port int
 	}
 }
@@ -21,7 +32,11 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	if err := envconfig.Process("server", &cfg.Server); err != nil {
+	if err := envconfig.Process("grpc", &cfg.GRPC); err != nil {
+		return nil, err
+	}
+
+	if err := envconfig.Process("http", &cfg.HTTP); err != nil {
 		return nil, err
 	}
 

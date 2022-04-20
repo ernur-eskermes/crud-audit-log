@@ -1,0 +1,43 @@
+basePath: /api/
+definitions:
+  domain.LogItem:
+    properties:
+      action:
+        type: string
+      entity:
+        type: string
+      entity_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+host: localhost:9001
+info:
+  contact: {}
+  description: REST API for audit log service
+  title: Audit Service
+  version: "1.0"
+paths:
+  /logs:
+    get:
+      consumes:
+      - application/json
+      description: Get all logs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.LogItem'
+            type: array
+      summary: Get Logs
+      tags:
+      - logs
+securityDefinitions:
+  UsersAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
