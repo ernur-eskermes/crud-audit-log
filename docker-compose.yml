@@ -15,6 +15,7 @@ services:
       - .env
     depends_on:
       - audit-db
+      - audit-rabbitmq
     networks:
       - audit_backend
     restart: on-failure
@@ -29,6 +30,12 @@ services:
     networks:
       - audit_backend
     restart: on-failure
+  audit-rabbitmq:
+    container_name: audit_rabbitmq
+    image: rabbitmq:3.10.2-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 networks:
   audit_backend:
     name: audit_backend

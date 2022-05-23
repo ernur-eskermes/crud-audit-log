@@ -6,6 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/ernur-eskermes/crud-audit-log/internal/transport/rabbitmq"
+	amqpHandler "github.com/ernur-eskermes/crud-audit-log/internal/transport/rabbitmq/handlers"
+
 	_ "github.com/ernur-eskermes/crud-audit-log/docs"
 	grpcHandler "github.com/ernur-eskermes/crud-audit-log/internal/transport/grpc/handlers"
 	"github.com/ernur-eskermes/crud-audit-log/internal/transport/rest"
@@ -42,8 +45,6 @@ func main() {
 	mongoClient, err := mongodb.NewClient(cfg.Mongo.URI, cfg.Mongo.User, cfg.Mongo.Password)
 	if err != nil {
 		logger.Fatal(err)
-
-		return
 	}
 
 	db := mongoClient.Database(cfg.Mongo.Database)
@@ -64,6 +65,16 @@ func main() {
 	})
 	restSrv := rest.NewServer(cfg, restHandlers)
 
+	amqpHandlers := amqpHandler.New(amqpHandler.Deps{
+		AuditService: services.Audit,
+		Logger:       logger,
+	})
+
+	amqpSrv, err := rabbitmq.New(cfg, amqpHandlers)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	go func() {
 		logger.Info("Starting gRPC server")
 
@@ -80,6 +91,14 @@ func main() {
 		}
 	}()
 
+	go func() {
+		logger.Info("Starting AMQP server")
+
+		if err = amqpSrv.ListenAndServe(); err != nil {
+			logger.Error("AMQP ListenAndServer error", err)
+		}
+	}()
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
@@ -90,6 +109,10 @@ func main() {
 
 	if err = restSrv.Stop(); err != nil {
 		logger.Errorf("failed to stop http server: %v", err)
+	}
+
+	if err = amqpSrv.Stop(); err != nil {
+		logger.Errorf("failed to stop amqp server: %v", err)
 	}
 
 	if err = mongoClient.Disconnect(context.Background()); err != nil {

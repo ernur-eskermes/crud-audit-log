@@ -23,6 +23,9 @@ type Config struct {
 	GRPC struct {
 		Port int
 	}
+	AMQP struct {
+		URI string
+	}
 }
 
 func New() (*Config, error) {
@@ -37,6 +40,10 @@ func New() (*Config, error) {
 	}
 
 	if err := envconfig.Process("http", &cfg.HTTP); err != nil {
+		return nil, err
+	}
+
+	if err := envconfig.Process("amqp", &cfg.AMQP); err != nil {
 		return nil, err
 	}
 
